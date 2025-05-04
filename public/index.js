@@ -155,6 +155,8 @@ function processCSV() {
 
           // Show the download button
           document.getElementById("downloadCsvButton").style.display = "block";
+          document.getElementById("downloadPredictionButton").style.display =
+            "block"; // Show prediction button too
         } else {
           alert("No valid data found in processed results.");
         }
@@ -289,4 +291,14 @@ async function fetchRealTimeSolution() {
     responseDiv.innerHTML =
       '<div class="alert alert-danger">Failed to fetch real-time solution. Please try again.</div>';
   }
+}
+
+// ✅ Function to download predictions_results.csv from server
+function downloadPredictionCSV() {
+  const a = document.createElement("a");
+  a.href = "/download/predictions";
+  a.download = "predictions_results.csv";
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
 }

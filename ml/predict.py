@@ -5,7 +5,7 @@ from sklearn.tree import DecisionTreeClassifier
 from sklearn.preprocessing import LabelEncoder
 
 # ✅ Step 1: Load and train on real labeled data
-train_df = pd.read_csv("ml/AllClassification.csv")
+train_df = pd.read_csv("AllClassification.csv")
 
 # Binning percentage_score into categories
 bins = [0, 25, 50, 75, 100]
@@ -24,7 +24,7 @@ X_train = train_df.drop(columns=["score_category"])
 y_train = train_df["score_category"]
 
 # ✅ Step 2: Prepare prediction input
-test_df = pd.read_csv("processed_results.csv")
+test_df = pd.read_csv("../processed_results.csv")
 urls = test_df["url"]
 
 # Drop unnecessary columns if they exist
@@ -112,5 +112,5 @@ output_df = pd.DataFrame({
     "url": urls,
     "prediction": categories
 })
-output_df.to_csv("predictions_results.csv", index=False)
+output_df.to_csv("../predictions_results.csv", index=False)
 print("✅ Prediction complete.")

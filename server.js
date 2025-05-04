@@ -11,6 +11,7 @@ const fs = require("fs"); // For file system operations
 require("dotenv").config();
 const helmet = require("helmet"); // Import helmet
 const createCsvWriter = require("csv-writer").createObjectCsvWriter;
+const { spawnSync } = require("child_process"); // ✅ Added for ML automation
 
 // List of security headers to check
 const securityHeaders = [
@@ -216,6 +217,24 @@ app.post("/api/upload-csv", upload.single("csvFile"), async (req, res) => {
           })),
         });
         await csvWriter.writeRecords(processedData);
+
+        // ✅ Auto-run ML model after CSV is ready
+        const python = process.platform === "win32" ? "python" : "python3";
+        console.log("⏳ Running ML prediction...");
+
+        const ml = spawnSync(python, ["predict.py"], {
+          cwd: path.join(__dirname, "ml"),
+          encoding: "utf-8",
+        });
+
+        if (ml.error) {
+          console.error("❌ ML prediction failed:", ml.error.message);
+          return res.status(500).json({ error: "ML prediction failed." });
+        }
+        if (ml.stderr) {
+          console.error("⚠️ ML stderr:", ml.stderr);
+        }
+        console.log("✅ ML output:\n", ml.stdout);
       }
 
       return res.json(processedData);
@@ -255,6 +274,16 @@ app.post("/api/deepseek", async (req, res) => {
   } catch (error) {
     console.error("Error calling DeepSeek API:", error.message);
     res.status(500).json({ error: "Failed to call DeepSeek API." });
+  }
+});
+
+// ✅ ✅ ✅ Added route to download predictions_results.csv
+app.get("/download/predictions", (req, res) => {
+  const filePath = path.join(__dirname, "predictions_results.csv");
+  if (fs.existsSync(filePath)) {
+    res.download(filePath);
+  } else {
+    res.status(404).send("Prediction results not found.");
   }
 });
 
